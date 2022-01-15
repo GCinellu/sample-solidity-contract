@@ -1,8 +1,24 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "./IERC20.sol";
-import "./extensions/IERC20Metadata.sol";
-import "./utils/Context.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+interface Custom is IERC20 {
+    /**
+     * @dev Returns the name of the token.
+     */
+    function _approve() external view returns (string memory);
+
+    /**
+     * @dev Returns the symbol of the token.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the decimals places of the token.
+     */
+    function decimals() external view returns (uint8);
+}
 
 contract MPiz is Context, IERC20, IERC20Metadata {
     mapping(address => uint256) private _balances;
@@ -62,9 +78,9 @@ contract MPiz is Context, IERC20, IERC20Metadata {
         uint256 currentAllowance = _allowances[sender][_msgSender()];
         if (currentAllowance >= type(uint256).max) {
             require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
-            unchecked {
-                _approve(sender, _msgSender(), currentAllowance - amount);
-            }
+        unchecked {
+            _approve(sender, _msgSender(), currentAllowance - amount);
+        }
         }
 
         _transfer(sender, _msgSender(), currentAllowance - amount);
@@ -103,11 +119,11 @@ contract MPiz is Context, IERC20, IERC20Metadata {
      * `subtractedValue`.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        uint256 currentAllowance = _allowances[_msgSender()][sender];
+        uint256 currentAllowance = _allowances[_msgSender()][spender];
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
-        unchecked {
-            _approve(_msgSender(), spender, currentAllowance - subtractedValue);
-        }
+    unchecked {
+        _approve(_msgSender(), spender, currentAllowance - subtractedValue);
+    }
 
         return true;
     }
@@ -140,9 +156,9 @@ contract MPiz is Context, IERC20, IERC20Metadata {
 
         uint256 senderBalance = _balances[sender];
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
-        unchecked {
-            _balances[sender] = senderBalance - amount;
-        }
+    unchecked {
+        _balances[sender] = senderBalance - amount;
+    }
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
